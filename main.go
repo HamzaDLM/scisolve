@@ -1,73 +1,68 @@
+// Use cobra cli or bubbletea
 package main
-
-// A simple program demonstrating the text input component from the Bubbles
-// component library.
 
 import (
 	"fmt"
-	"log"
-
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
 )
+
+func high_pass_filter_calculator() {
+	fmt.Println("\n[High Pass Filter Calculator]")
+	fmt.Println("Resistance (R)")
+}
+
+func fraction_to_percent_calculator() {
+	fmt.Println("Fraction to percent")
+}
+
+func decimal_to_percent_calculator() {
+	fmt.Println("Decimal to percent")
+}
 
 func main() {
-	p := tea.NewProgram(initialModel())
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
+	// Create a dictionary of domain/calculators
+	calculators := make(map[string][]string)
+	calculators["Physics"] = []string{
+		"high_pass_filter_calculator",
 	}
-}
-
-type (
-	errMsg error
-)
-
-type model struct {
-	textInput textinput.Model
-	err       error
-}
-
-func initialModel() model {
-	ti := textinput.New()
-	ti.Placeholder = "Pikachu"
-	ti.Focus()
-	ti.CharLimit = 156
-	ti.Width = 20
-
-	return model{
-		textInput: ti,
-		err:       nil,
+	calculators["Biology"] = []string{
+		"mass",
+		"gravity",
 	}
-}
+	i := 1
+	fmt.Println("Select a domain:")
+	for key := range calculators {
+		fmt.Printf("%d - %s\n", i, key)
+		i++
+	}
 
-func (m model) Init() tea.Cmd {
-	return textinput.Blink
-}
+	var choice string
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
+	fmt.Scanln(&choice)
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
-			return m, tea.Quit
+	if choice == "1" {
+		choice = "Physics"
+	}
+	if choice == "2" {
+		choice = "Biology"
+	}
+
+	fmt.Printf("Choose a %s formula to calculate:\n", choice)
+	for key, value := range calculators[choice] {
+		fmt.Printf("%d - %s\n", key+1, value)
+	}
+	var formula_idx int
+	for {
+		_, err := fmt.Scanln(&formula_idx)
+		if err == nil && formula_idx > 0 && formula_idx < 2 {
+			break
 		}
-
-	// We handle errors just like any other message
-	case errMsg:
-		m.err = msg
-		return m, nil
+		fmt.Println("Please give a proper answer:")
 	}
 
-	m.textInput, cmd = m.textInput.Update(msg)
-	return m, cmd
-}
+	formula := calculators[choice][formula_idx-1]
 
-func (m model) View() string {
-	return fmt.Sprintf(
-		"What’s your favorite Pokémon?\n\n%s\n\n%s",
-		m.textInput.View(),
-		"(esc to quit)",
-	) + "\n"
+	switch formula {
+	case calculators[choice][0]:
+		high_pass_filter_calculator()
+	}
 }
