@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/muesli/reflow/indent"
@@ -10,9 +11,10 @@ import (
 
 // Define dict for domains and calculations available
 var questionsStore = map[string][]string{
-	"Math":    []string{"Question1", "Question2"},
-	"Biology": []string{"Question1", "Question2"},
-	"Physics": []string{"foiezfjeio"},
+	"Math":    {"Question1", "Question2"},
+	"Biology": {"Question1", "Question2"},
+	"Physics": {"foiezfjeio"},
+	"Chem":    {"foiezfjeio"},
 }
 
 // Secodn approach to defining the domains and questions
@@ -126,15 +128,14 @@ func choicesView(m model) string {
 	tpl += "Select to show the available %s for that domain.\n\n"
 	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
 
-	ch := "%s\n%s\n%s\n"
 	i := 0
-	var checkboxes []any
-	for key, _ := range questionsStore {
-		checkboxes = append(checkboxes, checkbox(key, c == i))
+	var checkboxes []string
+	for key := range questionsStore {
+		checkboxes = append(checkboxes, checkbox(key, c == i), "\n")
 		i++
 	}
-	choices := fmt.Sprintf(ch, checkboxes...)
-
+	joined_checkboxes := strings.Join(checkboxes, " ")
+	choices := fmt.Sprintf("%s", " "+joined_checkboxes)
 	return fmt.Sprintf(tpl, choices, colorFg("calculations", "79"))
 }
 
