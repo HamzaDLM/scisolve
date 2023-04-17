@@ -61,7 +61,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Hand off the message and model to the appropriate update function for the
 	// appropriate view based on the current state.
 	if !m.ChosenDomain {
 		return updateChoices(msg, m)
@@ -128,6 +127,7 @@ func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			m.ChosenCalc = true
 			return m, nil
+			// case "b"
 		}
 	}
 	return m, nil
