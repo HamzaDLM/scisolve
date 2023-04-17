@@ -134,17 +134,22 @@ func choicesView(m model) string {
 
 	tpl := title("Welcome to SciSolve\n\n")
 	tpl += "Available domain:\n\n"
-	tpl += "%s\n\n"
+	i := 0
+	for key := range questionsStore {
+		tpl += checkbox(key, c == i)
+		i++
+	}
+	// tpl += "%s\n\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
 	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
 
-	choices := fmt.Sprintf(
-		"%s\n%s\n%s\n%s",
-		checkbox("Math", c == 0),
-		checkbox("Biology", c == 1),
-		checkbox("Physics", c == 2),
-		checkbox("Chemistry", c == 3),
-	)
+	// choices := fmt.Sprintf(
+	// 	"%s\n%s\n%s\n%s",
+	// 	checkbox("Math", c == 0),
+	// 	checkbox("Biology", c == 1),
+	// 	checkbox("Physics", c == 2),
+	// 	checkbox("Chemistry", c == 3),
+	// )
 	// i := 0
 	// checkboxes := []string{}
 	// for key := range questionsStore {
@@ -153,7 +158,7 @@ func choicesView(m model) string {
 	// }
 	// joined_checkboxes := strings.Join(checkboxes, " ")
 	// choices := fmt.Sprintf("%s", " "+joined_checkboxes)
-	return fmt.Sprintf(tpl, choices, colorFg("calculations", "79"))
+	return fmt.Sprintf(tpl, colorFg("calculations", "79"))
 }
 
 // The second view, after a domain has been chosen
@@ -196,7 +201,7 @@ func chosenView(m model) string {
 }
 
 // func executorView(m model) string {
-
+// 	c =
 // }
 
 func checkbox(label string, checked bool) string {
