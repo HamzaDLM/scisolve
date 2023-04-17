@@ -168,6 +168,7 @@ func chosenView(m model) string {
 	for k, _ := range questionStore[c] {
 		keys = append(keys, k)
 	}
+	pr(keys)
 	sort.Ints(keys)
 	for _, k := range keys {
 		tpl += checkbox(questionStore[c][k], n == k) + "\n"
