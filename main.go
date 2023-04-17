@@ -111,13 +111,14 @@ func updateChoices(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 
 // Update loop for the second view after a choice has been made
 func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
+	c := m.Choice
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "j", "down":
 			m.ChoiceCalc++
-			if m.ChoiceCalc > len(questionStore)-1 {
-				m.ChoiceCalc = len(questionStore) - 1
+			if m.ChoiceCalc > len(questionStore[c])-1 {
+				m.ChoiceCalc = len(questionStore[c]) - 1
 			}
 		case "k", "up":
 			m.ChoiceCalc--
@@ -168,7 +169,6 @@ func chosenView(m model) string {
 	for k, _ := range questionStore[c] {
 		keys = append(keys, k)
 	}
-	pr(keys)
 	sort.Ints(keys)
 	for _, k := range keys {
 		tpl += checkbox(questionStore[c][k], n == k) + "\n"
