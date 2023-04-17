@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/muesli/reflow/indent"
@@ -9,11 +10,17 @@ import (
 )
 
 // Define dict for domains and calculations available
-var questionsStore = map[string][]string{
-	"Math":      {"Polynomial Division", "Multiplying Binomials", "Inverse Variation"},
-	"Biology":   {"DNA Concentration", "Punnett Square", "Allele Frequency"},
-	"Physics":   {"Polar Moment of Inertia", "Projectile Motion", "Projectile Motion"},
-	"Chemistry": {"Atomic Mass", "Effective Nuclear Charge", "Effective Nuclear Charge"},
+var domainStore = map[int]string{
+	0: "Math",
+	1: "Biology",
+	2: "Physics",
+	3: "Chemistry",
+}
+var questionStore = map[int][]string{
+	0: {"Polynomial Division", "Multiplying Binomials", "Inverse Variation", "Inverse Variation"},
+	1: {"DNA Concentration", "Punnett Square", "Allele Frequency"},
+	2: {"Polar Moment of Inertia", "Projectile Motion", "Projectile Motion"},
+	3: {"Atomic Mass", "Effective Nuclear Charge", "Effective Nuclear Charge"},
 }
 
 // Helper function to print
@@ -84,11 +91,10 @@ func updateChoices(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		// TODO: make the length check dynamic
 		case "j", "down":
 			m.Choice++
-			if m.Choice > 3 {
-				m.Choice = 3
+			if m.Choice > len(domainStore)-1 {
+				m.Choice = len(domainStore) - 1
 			}
 		case "k", "up":
 			m.Choice--
@@ -110,8 +116,8 @@ func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "j", "down":
 			m.ChoiceCalc++
-			if m.ChoiceCalc > 3 {
-				m.ChoiceCalc = 3
+			if m.ChoiceCalc > len(questionStore)-1 {
+				m.ChoiceCalc = len(questionStore) - 1
 			}
 		case "k", "up":
 			m.ChoiceCalc--
@@ -132,32 +138,21 @@ func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 func choicesView(m model) string {
 	c := m.Choice
 
-	tpl := title("Welcome to SciSolve\n\n")
+	tpl := title("SciSolve\n\n")
 	tpl += "Available domain:\n\n"
-	i := 0
-	for key := range questionsStore {
-		tpl += checkbox(key, c == i)
-		i++
+
+	keys := make([]int, 0)
+	for k, _ := range domainStore {
+		keys = append(keys, k)
 	}
-	// tpl += "%s\n\n"
+	sort.Ints(keys)
+	for _, k := range keys {
+		tpl += checkbox(domainStore[k], c == k) + "\n"
+	}
+	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
 	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
 
-	// choices := fmt.Sprintf(
-	// 	"%s\n%s\n%s\n%s",
-	// 	checkbox("Math", c == 0),
-	// 	checkbox("Biology", c == 1),
-	// 	checkbox("Physics", c == 2),
-	// 	checkbox("Chemistry", c == 3),
-	// )
-	// i := 0
-	// checkboxes := []string{}
-	// for key := range questionsStore {
-	// 	checkboxes = append(checkboxes, checkbox(key, c == i), "\n")
-	// 	i++
-	// }
-	// joined_checkboxes := strings.Join(checkboxes, " ")
-	// choices := fmt.Sprintf("%s", " "+joined_checkboxes)
 	return fmt.Sprintf(tpl, colorFg("calculations", "79"))
 }
 
@@ -166,43 +161,24 @@ func chosenView(m model) string {
 	c := m.Choice
 	n := m.ChoiceCalc
 
-	var domain string
-	switch c {
-	case 0:
-		domain = "Math"
-	case 1:
-		domain = "Biology"
-	case 2:
-		domain = "Physics"
-	case 3:
-		domain = "Chemistry"
-	}
-	tpl := title("Welcome to SciSolve\n\n")
+	tpl := title("SciSolve\n\n")
 	tpl += "Available %s calculators:\n\n"
-	tpl += "%s\n\n"
+
+	keys := make([]int, 0)
+	for k, _ := range questionStore[c] {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for _, k := range keys {
+		tpl += checkbox(questionStore[c][k], n == k) + "\n"
+	}
+
+	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
 	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
 
-	// checkboxes := []string{}
-	// for key, value := range questionsStore[domain] {
-	// 	checkboxes = append(checkboxes, checkbox(value, n == key), "\n")
-	// }
-	// joined_checkboxes := strings.Join(checkboxes, " ")
-	// choices := fmt.Sprintf("%s", " "+joined_checkboxes)
-
-	choices := fmt.Sprintf(
-		"%s\n%s\n%s\n%s",
-		checkbox("fjofjzaof", n == 0),
-		checkbox("fezk", n == 1),
-		checkbox("efo", n == 2),
-		checkbox("foe", n == 3),
-	)
-	return fmt.Sprintf(tpl, domain, choices, colorFg("calculations", "79"))
+	return fmt.Sprintf(tpl, domainStore[c], colorFg("calculations", "79"))
 }
-
-// func executorView(m model) string {
-// 	c =
-// }
 
 func checkbox(label string, checked bool) string {
 	if checked {
