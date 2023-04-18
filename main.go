@@ -17,10 +17,24 @@ var domainStore = map[int]string{
 	3: "Chemistry",
 }
 var questionStore = map[int][]string{
-	0: {"Polynomial Division", "Multiplying Binomials", "Inverse Variation", "Inverse Variation"},
-	1: {"DNA Concentration", "Punnett Square", "Allele Frequency"},
-	2: {"Polar Moment of Inertia", "Projectile Motion", "Projectile Motion"},
-	3: {"Atomic Mass", "Effective Nuclear Charge", "Effective Nuclear Charge"},
+	0: {
+		"Polynomial Division",
+		"Multiplying Binomials",
+		"Inverse Variation",
+	},
+	1: {
+		"DNA Concentration",
+		"Punnett Square",
+		"Allele Frequency",
+	},
+	2: {
+		"Polar Moment of Inertia",
+		"Projectile Motion",
+	},
+	3: {
+		"Atomic Mass",
+		"Effective Nuclear Charge",
+	},
 }
 
 // Helper function to print
@@ -127,7 +141,9 @@ func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			m.ChosenCalc = true
 			return m, nil
-			// case "b"
+		case "b", "back":
+			m.ChosenDomain = false
+			return m, nil
 		}
 	}
 	return m, nil
@@ -152,7 +168,7 @@ func choicesView(m model) string {
 	}
 	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
-	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
+	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("b: back") + dot + subtle("q, esc: quit")
 
 	return fmt.Sprintf(tpl, colorFg("calculations", "79"))
 }
@@ -176,10 +192,14 @@ func chosenView(m model) string {
 
 	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
-	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
+	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("b: back") + dot + subtle("q, esc: quit")
 
 	return fmt.Sprintf(tpl, domainStore[c], colorFg("calculations", "79"))
 }
+
+// func argumentView(m model) string {
+
+// }
 
 func checkbox(label string, checked bool) string {
 	if checked {
