@@ -3,10 +3,24 @@ package main
 type SampleType string
 
 const (
-	single_stranded_dna SampleType = "Single Stranded DNA"
-	double_stranded_dna SampleType = "Double Stranded DNA"
+	ssDNA SampleType = "Single Stranded DNA"
+	dsDNA SampleType = "Double Stranded DNA"
+	rna   SampleType = "RNA"
 )
 
+type DNAConcentration struct {
+	sample_type       SampleType
+	conversion_factor float64
+	absorbance_at_max float64
+	pathlength        float64
+	dilution_factor   float64
+	// concentration     float64
+}
+
+// Calculate DNA Concentration
+//
+// ---------------------------------------
+//
 // C – Concentration of the nucleic acid in the sample.
 // ​
 // A260  – The maximum absorbance as indicated by the spectrophotometric reading. This usually occurs at the wavelength of 260 nm, but it may change depending on the nucleotide. So, if you wondered, why is 260 nm used for DNA?, this is the answer.
@@ -22,11 +36,23 @@ const (
 // 50 µg/mL for double-stranded DNA (dsDNA).
 //
 // 40 µg/mL for RNA.
-func dna_concentration(sample_type SampleType, conversion_factor float64, absorbance_at_max float64, pathlength float64, dilution_factor float64, concentration float64) float64 {
+func dna_concentration(p DNAConcentration) float64 {
 
-	if sample_type == nil && conversion_factor == nil {
+	if p.sample_type == "" && p.conversion_factor == 0 {
 		panic("Please provide at least of of these two arguments: Sample type | Conversion factor")
+	} else if p.sample_type == "Single Stranded DNA" {
+		p.conversion_factor = 33
+	} else if p.sample_type == "Double Stranded DNA" {
+		p.conversion_factor = 50
+	} else if p.sample_type == "RNA" {
+		p.conversion_factor = 40
 	}
 
-	return (absorbance_at_max / pathlength) * dilution_factor * conversion_factor
+	return (p.absorbance_at_max / p.pathlength) * p.dilution_factor * p.conversion_factor
 }
+
+// func main() {
+// 	param := DNAConcentration{sample_type: "Single Stranded DNA", absorbance_at_max: 5, pathlength: 1, dilution_factor: 1}
+// 	var result = dna_concentration(param)
+// 	fmt.Println(result)
+// }
