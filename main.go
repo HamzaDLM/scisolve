@@ -95,9 +95,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if !m.ChosenDomain {
 		return updateChoices(msg, m)
 	} else if m.ChosenDomain && !m.ChosenCalc {
-		return updateArguments(msg, m)
+		return updateChosen(msg, m)
 	}
-	return updateChosen(msg, m)
+	return updateArguments(msg, m)
 }
 
 // The main view, which just calls the appropriate sub-view
@@ -109,9 +109,9 @@ func (m model) View() string {
 	if !m.ChosenDomain {
 		s = choicesView(m)
 	} else if m.ChosenDomain && !m.ChosenCalc {
-		s = argumentView(m)
-	} else {
 		s = chosenView(m)
+	} else {
+		s = argumentView(m)
 	}
 
 	return indent.String("\n"+s+"\n\n", 2)
@@ -176,7 +176,7 @@ func updateArguments(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "esc":
 			return m, tea.Quit
 
-		// Change cursor mode
+		// FIXME: to remove | Change cursor mode
 		case "ctrl+r":
 			m.cursorMode++
 			if m.cursorMode > textinput.CursorHide {
