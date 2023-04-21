@@ -40,6 +40,21 @@ var questionStore = map[int][]string{
 	},
 }
 
+/*
+Returns the target calculator function depending on domain and question id
+
+and the number of arguments to be passed to it
+*/
+func selectCalculator(domainId, questionId int, m model) {
+	switch domainId {
+	case 0: //
+		switch questionId {
+		case 0:
+			test(m)
+		}
+	}
+}
+
 // TODO: remove | Helper function to print
 func pr(arg any) {
 	fmt.Println(arg)
@@ -91,7 +106,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// appropriate view based on the current state.
+	if m.ChosenCalc {
+		// Get the chosen question/domain
+
+		// Check how many arguments we need
+
+		// Add textinput for each one (all args will be str and parsed later)
+		selectCalculator(m.Choice, m.ChoiceCalc, m)
+	}
+	// pr("==============")
+
+	// app view based on the current state.
 	if !m.ChosenDomain {
 		return updateChoices(msg, m)
 	} else if m.ChosenDomain && !m.ChosenCalc {
@@ -335,32 +360,32 @@ func main() {
 		ChosenCalc:   false,
 		Loaded:       false,
 		Quitting:     false,
-		Inputs:       make([]textinput.Model, 3),
+		Inputs:       make([]textinput.Model, 0),
 	}
 
-	var t textinput.Model
-	for i := range initialModel.Inputs {
-		t = textinput.New()
-		t.CursorStyle = cursorStyle
-		t.CharLimit = 32
+	// var t textinput.Model
+	// for i := range initialModel.Inputs {
+	// 	t = textinput.New()
+	// 	t.CursorStyle = cursorStyle
+	// 	t.CharLimit = 32
 
-		switch i {
-		case 0:
-			t.Placeholder = "Nickname"
-			t.Focus()
-			t.PromptStyle = focusedStyle
-			t.TextStyle = focusedStyle
-		case 1:
-			t.Placeholder = "Email"
-			t.CharLimit = 64
-		case 2:
-			t.Placeholder = "Password"
-			t.EchoMode = textinput.EchoPassword
-			t.EchoCharacter = '•'
-		}
+	// 	switch i {
+	// 	case 0:
+	// 		t.Placeholder = "Nickname"
+	// 		t.Focus()
+	// 		t.PromptStyle = focusedStyle
+	// 		t.TextStyle = focusedStyle
+	// 	case 1:
+	// 		t.Placeholder = "Email"
+	// 		t.CharLimit = 64
+	// 	case 2:
+	// 		t.Placeholder = "Password"
+	// 		t.EchoMode = textinput.EchoPassword
+	// 		t.EchoCharacter = '•'
+	// 	}
 
-		initialModel.Inputs[i] = t
-	}
+	// 	initialModel.Inputs[i] = t
+	// }
 
 	p := tea.NewProgram(initialModel)
 	if _, err := p.Run(); err != nil {
