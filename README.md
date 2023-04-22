@@ -8,3 +8,7 @@ Workflow:
 - Choose the formula to execute
 - Get prompted to enter input values
 - Perform operation and output results
+
+TODO:
+
+- Fix arguments rendering
