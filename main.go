@@ -45,14 +45,16 @@ Returns the target calculator function depending on domain and question id
 
 and the number of arguments to be passed to it
 */
-func selectCalculator(domainId, questionId int, m model) {
+func selectCalculator(domainId, questionId int, m model) model {
 	switch domainId {
 	case 0: //
 		switch questionId {
 		case 0:
-			test(m)
+			result := test(m)
+			return result
 		}
 	}
+	return m
 }
 
 // TODO: remove | Helper function to print
@@ -84,6 +86,7 @@ type model struct {
 	ChoiceCalc   int
 	ChosenDomain bool
 	ChosenCalc   bool
+	InsideCalc   bool
 	Loaded       bool
 	Quitting     bool
 	FocusIndex   int
@@ -105,18 +108,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-
-	if m.ChosenCalc {
-		// Get the chosen question/domain
-
-		// Check how many arguments we need
-
-		// Add textinput for each one (all args will be str and parsed later)
-		selectCalculator(m.Choice, m.ChoiceCalc, m)
+	// When do we want to select calculator and enter data
+	// When calc func is chosen and quitting/enter keys aren't entered
+	if m.ChosenCalc && !m.InsideCalc {
+		m = selectCalculator(m.Choice, m.ChoiceCalc, m)
 	}
-	// pr("==============")
 
-	// app view based on the current state.
 	if !m.ChosenDomain {
 		return updateChoices(msg, m)
 	} else if m.ChosenDomain && !m.ChosenCalc {
@@ -220,7 +217,9 @@ func updateArguments(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 			// Did the user press enter while the submit button was focused?
 			// If so, exit.
 			if s == "enter" && m.FocusIndex == len(m.Inputs) {
-				return m, tea.Quit
+				pr("======= OUTPUT ========")
+				pr(m.Inputs)
+				// return m, tea.Quit
 			}
 
 			// Cycle indexes
@@ -358,6 +357,7 @@ func main() {
 		ChoiceCalc:   0,
 		ChosenDomain: false,
 		ChosenCalc:   false,
+		InsideCalc:   false,
 		Loaded:       false,
 		Quitting:     false,
 		Inputs:       make([]textinput.Model, 0),

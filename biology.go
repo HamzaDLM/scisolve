@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
@@ -63,13 +61,16 @@ type sTest struct {
 	b int
 }
 
-func test(m model) {
+func test(m model) model {
 	var t textinput.Model
 
+	// reinitialize inputs
+	m.Inputs = make([]textinput.Model, 0)
+
 	t = textinput.New()
 	t.CursorStyle = cursorStyle
 
-	t.Placeholder = "Example argument 1"
+	t.Placeholder = "AAAAAAAAAAAAAAAAAA"
 	t.Focus()
 	t.PromptStyle = focusedStyle
 	t.TextStyle = focusedStyle
@@ -80,15 +81,18 @@ func test(m model) {
 	t = textinput.New()
 	t.CursorStyle = cursorStyle
 
-	t.Placeholder = "Example argument 1"
+	t.Placeholder = "ZZZZZZZZZZZZZZZZZZZzz"
 	t.Focus()
-	t.PromptStyle = focusedStyle
-	t.TextStyle = focusedStyle
+	t.PromptStyle = noStyle
+	t.TextStyle = noStyle
 	t.CharLimit = 64
 
 	m.Inputs = append(m.Inputs, t)
 
-	fmt.Println(m.Inputs)
+	// this insures this function is only ran once
+	m.InsideCalc = !m.InsideCalc
+
+	return m
 }
 
 // func main() {
