@@ -21,25 +21,6 @@ type DnaConcentration struct {
 	// concentration     float64
 }
 
-/*
-Calculate DNA Concentration
-
-C – Concentration of the nucleic acid in the sample.
-​
-A260  – The maximum absorbance as indicated by the spectrophotometric reading. This usually occurs at the wavelength of 260 nm, but it may change depending on the nucleotide. So, if you wondered, why is 260 nm used for DNA?, this is the answer.
-
-l – Pathlength, and more precisely, the length of the cuvette used. The standard value is 1 cm, but your instrument may use a different size.
-
-DF – Dilution factor. It applies only when the sample is diluted. For instance, if you diluted 1 liter of sample in 50 liters of H2O, the dilution factor would be 50. The dilution factor calculator can help you determine the right value.
-
-CF – Conversion factor, which depends on the sample type:
-
-	33 µg/mL for single-stranded DNA (ssDNA).
-
-	50 µg/mL for double-stranded DNA (dsDNA).
-
-	40 µg/mL for RNA.
-*/
 func DNAConcentration[T any](p DnaConcentration) float64 {
 
 	if p.sample_type == "" && p.conversion_factor == 0 {
@@ -55,35 +36,7 @@ func DNAConcentration[T any](p DnaConcentration) float64 {
 	return (p.absorbance_at_max / p.pathlength) * p.dilution_factor * p.conversion_factor
 }
 
-// Test function
-type sTest struct {
-	a int
-	b int
-}
-
-func test2(m model) model {
-	var t textinput.Model
-
-	t = textinput.New()
-	t.CursorStyle = cursorStyle
-
-	t.Placeholder = "Conversion Factor"
-	t.Focus()
-	t.PromptStyle = focusedStyle
-	t.TextStyle = focusedStyle
-	t.CharLimit = 64
-
-	m.Inputs = append(m.Inputs, t)
-
-	// this insures this function is only ran once
-	m.InsideCalc = !m.InsideCalc
-
-	return m
-
-}
-
-func test(m model) model {
-	var t textinput.Model
+func wrapperDNAConcentration(m model) model {
 
 	m.Description = `
 Calculate DNA Concentration
@@ -104,30 +57,42 @@ CF    - Conversion factor, which depends on the sample type:
 	50 µg/mL for double-stranded DNA (dsDNA).
 
 	40 µg/mL for RNA.
+---------------------------
 	`
-	t = textinput.New()
-	t.CursorStyle = cursorStyle
+	// Prepping input fields
+	inputFields := map[string]string{
+		"Sample Type":     "",
+		"Path Length":     "",
+		"Dilution Factor": "",
+		"Conversion Rate": "",
+	}
 
-	t.Placeholder = "Conversion Factor"
-	t.Focus()
-	t.PromptStyle = focusedStyle
-	t.TextStyle = focusedStyle
-	t.CharLimit = 64
+	i := 0
+	for key := range inputFields {
+		var t textinput.Model
 
-	m.Inputs = append(m.Inputs, t)
+		t = textinput.New()
+		t.CursorStyle = cursorStyle
 
-	t = textinput.New()
-	t.CursorStyle = cursorStyle
+		t.Placeholder = key
+		if i == 0 {
+			t.Focus()
+			t.PromptStyle = focusedStyle
+			t.TextStyle = focusedStyle
+		} else {
+			t.PromptStyle = noStyle
+			t.TextStyle = noStyle
+		}
+		t.CharLimit = 64
 
-	t.Placeholder = "Sample Type"
-	t.PromptStyle = noStyle
-	t.TextStyle = noStyle
-	t.CharLimit = 64
-
-	m.Inputs = append(m.Inputs, t)
+		m.Inputs = append(m.Inputs, t)
+		i++
+	}
 
 	// this insures this function is only ran once
 	m.InsideCalc = !m.InsideCalc
+
+	m.Result = "Concentration: " // + res + "mg/m"
 
 	return m
 }

@@ -54,3 +54,8 @@ func makeFgBgStyle(fg, bg string) func(string) string {
 		Bold().
 		Styled
 }
+
+// TODO: remove | Helper function to print
+func pr(arg any) {
+	fmt.Println(arg)
+}

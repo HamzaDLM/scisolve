@@ -40,29 +40,21 @@ var questionStore = map[int][]string{
 	},
 }
 
-/*
-Returns the target calculator function depending on domain and question id
-
-and the number of arguments to be passed to it
-*/
 func selectCalculator(domainId, questionId int, m model) model {
 	switch domainId {
 	case 0: // Math
 		switch questionId {
 		case 0:
-			result := test(m)
-			return result
-		case 1:
-			result := test2(m)
+
+		}
+	case 1:
+		switch questionId {
+		case 0:
+			result := wrapperDNAConcentration(m)
 			return result
 		}
 	}
 	return m
-}
-
-// TODO: remove | Helper function to print
-func pr(arg any) {
-	fmt.Println(arg)
 }
 
 // General stuff for styling the view
@@ -79,9 +71,6 @@ var (
 	noStyle             = lipgloss.NewStyle()
 	helpStyle           = blurredStyle.Copy()
 	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-
-	focusedButton = focusedStyle.Copy().Render("[ Submit ]")
-	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
 )
 
 type model struct {
@@ -91,6 +80,7 @@ type model struct {
 	ChosenCalc   bool
 	InsideCalc   bool
 	Description  string
+	Result       string
 	Loaded       bool
 	Quitting     bool
 	FocusIndex   int
@@ -107,12 +97,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Make sure these keys always quit
 	if msg, ok := msg.(tea.KeyMsg); ok {
 		k := msg.String()
-		if (k == "q" || k == "esc" || k == "ctrl+c") && !m.ChosenCalc {
+		if (k == "q" || k == "ctrl+c") && !m.ChosenCalc {
 			m.Quitting = true
 			return m, tea.Quit
 		}
 	}
-	if m.ChosenCalc && !m.InsideCalc {
+	if m.ChosenCalc { // && !m.InsideCalc
 		m = selectCalculator(m.Choice, m.ChoiceCalc, m)
 	}
 	if !m.ChosenDomain {
@@ -131,7 +121,7 @@ func (m model) View() string {
 	}
 	// When do we want to select calculator and enter data
 	// When calc func is chosen and quitting/enter keys aren't entered
-	if m.ChosenCalc && !m.InsideCalc {
+	if m.ChosenCalc { //&& !m.InsideCalc
 		m = selectCalculator(m.Choice, m.ChoiceCalc, m)
 	}
 	if !m.ChosenDomain {
@@ -165,7 +155,10 @@ func updateChoices(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			m.ChosenDomain = true
 			return m, nil
+		case "esc":
+			return m, tea.Quit
 		}
+
 	}
 	return m, nil
 }
@@ -189,7 +182,7 @@ func updateChosen(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 		case "enter":
 			m.ChosenCalc = true
 			return m, nil
-		case "b", "back":
+		case "esc", "back":
 			m.ChosenDomain = false
 			return m, nil
 		}
@@ -201,7 +194,13 @@ func updateArguments(msg tea.Msg, m model) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "esc":
+		case "esc":
+			// If we go back, reset all necessary values
+			m.ChosenCalc = !m.ChosenCalc
+			m.Inputs = make([]textinput.Model, 0)
+			m.Description = ""
+			m.Result = ""
+		case "ctrl+c":
 			return m, tea.Quit
 
 		// Set focus to next input
@@ -285,7 +284,7 @@ func choicesView(m model) string {
 	}
 	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
-	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("b: back") + dot + subtle("q, esc: quit")
+	tpl += subtle("j/k/up/down: select") + dot + subtle("enter: choose") + dot + subtle("q, esc: quit")
 
 	return fmt.Sprintf(tpl, colorFg("calculations", "79"))
 }
@@ -309,7 +308,7 @@ func chosenView(m model) string {
 
 	tpl += "\n"
 	tpl += "Select to show the available %s for that domain.\n\n"
-	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("b: back") + dot + subtle("q, esc: quit")
+	tpl += subtle("j/k, up/down: select") + dot + subtle("enter: choose") + dot + subtle("esc: back") + dot + subtle("q, ctrl+c: quit")
 
 	return fmt.Sprintf(tpl, domainStore[c], colorFg("calculations", "79"))
 }
@@ -320,8 +319,7 @@ func argumentView(m model) string {
 
 	if m.Description != "" {
 		b.WriteString(m.Description)
-		b.WriteRune('\n')
-		b.WriteRune('\n')
+		fmt.Fprintf(&b, "\n\n")
 	}
 
 	for i := range m.Inputs {
@@ -331,11 +329,12 @@ func argumentView(m model) string {
 		}
 	}
 
-	button := &blurredButton
-	if m.FocusIndex == len(m.Inputs) {
-		button = &focusedButton
+	if m.Result != "" {
+		fmt.Fprintf(&b, "\n\n")
+		b.WriteString(m.Result)
 	}
-	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
+
+	fmt.Fprintf(&b, "\n\n\n")
 
 	b.WriteString(helpStyle.Render("Press esc to quit"))
 
